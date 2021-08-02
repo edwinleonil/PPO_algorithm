@@ -59,7 +59,7 @@ class ActorNetwork(nn.Module):
                 nn.Linear(fc1_dims, fc2_dims),
                 nn.ReLU(),
                 nn.Linear(fc2_dims, n_actions),
-                nn.Softmax(dim=-1)
+                nn.Softmax(dim=None) # to compute probaility distribution for the two dimentions
         )
 
         self.optimizer = optim.Adam(self.parameters(), lr=alpha)
@@ -137,12 +137,13 @@ class Agent:
 
         dist = self.actor(state)
         value = self.critic(state)
-        action = dist.sample()
-        
+        print(type(dist))
+        action = dist.sample(batch_shape=2)
+        print("action XXXXX:", dist)
         probs = T.squeeze(dist.log_prob(action)).item()
         action = T.squeeze(action).item()
         value = T.squeeze(value).item()
-       
+        # print("action XXXXX:", action)
         return action, probs, value
 
     def learn(self):

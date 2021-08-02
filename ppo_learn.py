@@ -1,21 +1,23 @@
 import gym
 import numpy as np
-from ppo_torch import Agent
+from agent import Agent
 from utils import plot_learning_curve
 
 if __name__ == '__main__':
-    env = gym.make('CartPole-v1')
+    
+    env = gym.make('LunarLander-v2').unwrapped
+   
+
     N = 20
     batch_size = 5
     n_epochs = 4
     alpha = 0.0003
-    
-    # print("input dimension",type(env.observation_space.shape))
-    # print("action dimention", env.action_space.n)
 
     agent = Agent(n_actions=env.action_space.n, batch_size=batch_size, 
                     alpha=alpha, n_epochs=n_epochs, 
                     input_dims=env.observation_space.shape)
+
+
     n_games = 300
 
     figure_file = 'plots/cartpole.png'
@@ -26,16 +28,19 @@ if __name__ == '__main__':
     learn_iters = 0
     avg_score = 0
     n_steps = 0
-
+    
     for i in range(n_games):
         observation = env.reset()
         done = False
         score = 0
         while not done:
+            # env.render()
             action, prob, val = agent.choose_action(observation)
+            print("action:",action)
             observation_, reward, done, info = env.step(action)
             n_steps += 1
             score += reward
+            
             agent.remember(observation, action, prob, val, reward, done)
             if n_steps % N == 0:
                 agent.learn()
